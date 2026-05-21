@@ -36,19 +36,19 @@ pipeline {
         }
 
         stage('2 · Preparar entorno') {
-    steps {
-        sh '''
-            python3 -m venv venv
-            . venv/bin/activate
+            steps {
+                sh '''
+                    python3 -m venv venv
+                    . venv/bin/activate
 
-            pip install --upgrade pip
-            pip install --no-cache-dir -r sqp/requirements.txt
-        '''
-    }
-}
+                    pip install --upgrade pip
+                    pip install --no-cache-dir -r sqp/requirements.txt
+                '''
+            }
+        }
         stage("3 · Pruebas unitarias") {
             steps {
-                dir('sqp') {
+                
                     sh """
                         if command -v python3 >/dev/null 2>&1; then
                             python3 -m pytest --cov=src --cov-report=xml:../${REPORTS_DIR}/coverage.xml --cov-report=html:../${REPORTS_DIR}/htmlcov --cov-fail-under=${COVERAGE_THRESHOLD} --junitxml=../${REPORTS_DIR}/junit.xml
@@ -59,11 +59,11 @@ pipeline {
                             exit 1
                         fi
                     """
-                }
+                
             }
             post {
                 always {
-                    junit "${REPORTS_DIR}/junit.xml"
+                    junit "sqp/${REPORTS_DIR}/junit.xml"
                 }
             }
         }
