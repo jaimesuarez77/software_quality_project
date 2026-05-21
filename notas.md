@@ -25,3 +25,4 @@ Required test coverage of 60.0% reached. Total coverage: 78.10%
 (venv) jaime@jaime-HP-EliteBook-840-14-inch-G9-Notebook-PC:~/Documents/laboratorio-ci/Proyectos/Quality_proy/software_quality_project/sqp$ 
 
 {"status":"ok","message":"Software Quality API"}
+python3 --version && python3 --version && command -v python3 && command -v python

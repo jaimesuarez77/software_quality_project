@@ -9,12 +9,11 @@ pipeline {
     agent any
 
     environment {
-        // TODO 1: Define las siguientes variables de entorno
-        // SONAR_PROJECT_KEY  = "???"         // clave del proyecto en SonarQube
-        // SONAR_PROJECT_NAME = "???"         // nombre visible en SonarQube
-        // SONAR_HOST_URL     = "???"         // URL del contenedor SonarQube
-        // COVERAGE_THRESHOLD = "???"         // umbral mínimo de cobertura (sugerido: 60)
-        // REPORTS_DIR        = "???"         // carpeta de reportes
+        SONAR_PROJECT_KEY  = "software-quality-project"
+        SONAR_PROJECT_NAME = "Software Quality Project"
+        SONAR_HOST_URL     = "http://sonarqube:9000"
+        COVERAGE_THRESHOLD = "60"
+        REPORTS_DIR        = "reports"
 
         APP_NAME = "software-quality-project"
     }
@@ -42,43 +41,36 @@ pipeline {
                 // Pista: usa pip3 con --no-cache-dir y el archivo requirements.txt
                 // Crea también el directorio de reportes con mkdir -p
                 sh """
-                    echo "TODO: instalar dependencias"
+                    python3 -m pip install --no-cache-dir -r requirements.txt
+                    mkdir -p ${REPORTS_DIR}
                 """
             }
         }
 
         stage("3 · Pruebas unitarias") {
             steps {
-                // TODO 3: Ejecuta pytest con:
-                //   --cov=src
-                //   --cov-report=xml (para SonarQube)
-                //   --cov-report=html (para el dashboard)
-                //   --cov-fail-under=${COVERAGE_THRESHOLD}
-                //   --junitxml (para publicar resultados en Jenkins)
                 sh """
-                    echo "TODO: ejecutar pytest"
+                    pytest --cov=src --cov-report=xml:${REPORTS_DIR}/coverage.xml --cov-report=html:${REPORTS_DIR}/htmlcov --cov-fail-under=${COVERAGE_THRESHOLD} --junitxml=${REPORTS_DIR}/junit.xml
                 """
             }
             post {
                 always {
-                    // TODO 4: Publica los resultados de JUnit en Jenkins
-                    // Pista: usa la instrucción junit con la ruta al XML
-                    echo "TODO: publicar resultados"
+                    junit "${REPORTS_DIR}/junit.xml"
                 }
             }
         }
 
         stage("4 · Análisis SonarQube") {
             steps {
-                // TODO 5: Ejecuta sonar-scanner con los parámetros correctos:
-                //   -Dsonar.projectKey
-                //   -Dsonar.sources=src
-                //   -Dsonar.tests=tests
-                //   -Dsonar.python.coverage.reportPaths
-                //   -Dsonar.python.version=3
                 withSonarQubeEnv("SonarQube") {
                     sh """
-                        echo "TODO: ejecutar sonar-scanner"
+                        sonar-scanner \
+                            -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
+                            -Dsonar.projectName=\"${SONAR_PROJECT_NAME}\" \
+                            -Dsonar.sources=src \
+                            -Dsonar.tests=tests \
+                            -Dsonar.python.coverage.reportPaths=${REPORTS_DIR}/coverage.xml \
+                            -Dsonar.python.version=3
                     """
                 }
             }
@@ -86,9 +78,9 @@ pipeline {
 
         stage("5 · Quality Gate") {
             steps {
-                // TODO 6: Espera el resultado del Quality Gate de SonarQube
-                // Pista: usa timeout y waitForQualityGate abortPipeline: true
-                echo "TODO: verificar Quality Gate"
+                timeout(time: 5, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
             }
         }
 
@@ -104,12 +96,14 @@ pipeline {
     }
 
     post {
-        // TODO 7: Completa el bloque post con:
-        //   always   — mensaje de estado del pipeline
-        //   success  — mensaje de build exitoso
-        //   failure  — mensaje de fallo con URL de SonarQube
         always {
             echo "Pipeline finalizado: ${currentBuild.currentResult}"
+        }
+        success {
+            echo "Build exitoso: el pipeline finalizó correctamente."
+        }
+        failure {
+            echo "Build FALLIDO: revisa SonarQube en ${SONAR_HOST_URL}"
         }
     }
 }
