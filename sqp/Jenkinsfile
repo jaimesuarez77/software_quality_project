@@ -40,10 +40,14 @@ pipeline {
                 // TODO 2: Instala las dependencias de Python
                 // Pista: usa pip3 con --no-cache-dir y el archivo requirements.txt
                 // Crea también el directorio de reportes con mkdir -p
-                sh """
-                    python3 -m pip install --no-cache-dir -r requirements.txt
-                    mkdir -p ${REPORTS_DIR}
-                """
+                dir('sqp') {
+                     sh """
+                        python3 -m pip install --no-cache-dir -r requirements.txt
+                        mkdir -p ${REPORTS_DIR}
+                    """
+
+                }
+               
             }
         }
 
