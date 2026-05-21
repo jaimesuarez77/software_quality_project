@@ -11,7 +11,7 @@ pipeline {
     environment {
         SONAR_PROJECT_KEY  = "software-quality-project"
         SONAR_PROJECT_NAME = "Software Quality Project"
-        SONAR_HOST_URL     = "http://sonarqube:9000"
+        SONAR_HOST_URL     = "http://mi-sonarqube:9000"
         COVERAGE_THRESHOLD = "60"
         REPORTS_DIR        = "reports"
 
