@@ -37,25 +37,36 @@ pipeline {
 
         stage("2 · Preparar entorno") {
             steps {
-                // TODO 2: Instala las dependencias de Python
-                // Pista: usa pip3 con --no-cache-dir y el archivo requirements.txt
-                // Crea también el directorio de reportes con mkdir -p
                 dir('sqp') {
-                     sh """
-                        python3 -m pip install --no-cache-dir -r requirements.txt
-                        mkdir -p ${REPORTS_DIR}
+                    sh """
+                        if command -v python3 >/dev/null 2>&1; then
+                            python3 -m pip install --no-cache-dir -r requirements.txt
+                        elif command -v python >/dev/null 2>&1; then
+                            python -m pip install --no-cache-dir -r requirements.txt
+                        else
+                            echo "ERROR: Python no está instalado en el agente"
+                            exit 1
+                        fi
+                        mkdir -p ../${REPORTS_DIR}
                     """
-
                 }
-               
             }
         }
 
         stage("3 · Pruebas unitarias") {
             steps {
-                sh """
-                    pytest --cov=src --cov-report=xml:${REPORTS_DIR}/coverage.xml --cov-report=html:${REPORTS_DIR}/htmlcov --cov-fail-under=${COVERAGE_THRESHOLD} --junitxml=${REPORTS_DIR}/junit.xml
-                """
+                dir('sqp') {
+                    sh """
+                        if command -v python3 >/dev/null 2>&1; then
+                            python3 -m pytest --cov=src --cov-report=xml:../${REPORTS_DIR}/coverage.xml --cov-report=html:../${REPORTS_DIR}/htmlcov --cov-fail-under=${COVERAGE_THRESHOLD} --junitxml=../${REPORTS_DIR}/junit.xml
+                        elif command -v python >/dev/null 2>&1; then
+                            python -m pytest --cov=src --cov-report=xml:../${REPORTS_DIR}/coverage.xml --cov-report=html:../${REPORTS_DIR}/htmlcov --cov-fail-under=${COVERAGE_THRESHOLD} --junitxml=../${REPORTS_DIR}/junit.xml
+                        else
+                            echo "ERROR: Python no está instalado en el agente"
+                            exit 1
+                        fi
+                    """
+                }
             }
             post {
                 always {
@@ -66,16 +77,18 @@ pipeline {
 
         stage("4 · Análisis SonarQube") {
             steps {
-                withSonarQubeEnv("SonarQube") {
-                    sh """
-                        sonar-scanner \
-                            -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
-                            -Dsonar.projectName=\"${SONAR_PROJECT_NAME}\" \
-                            -Dsonar.sources=src \
-                            -Dsonar.tests=tests \
-                            -Dsonar.python.coverage.reportPaths=${REPORTS_DIR}/coverage.xml \
-                            -Dsonar.python.version=3
-                    """
+                dir('sqp') {
+                    withSonarQubeEnv("SonarQube") {
+                        sh """
+                            sonar-scanner \
+                                -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
+                                -Dsonar.projectName=\"${SONAR_PROJECT_NAME}\" \
+                                -Dsonar.sources=src \
+                                -Dsonar.tests=tests \
+                                -Dsonar.python.coverage.reportPaths=../${REPORTS_DIR}/coverage.xml \
+                                -Dsonar.python.version=3
+                        """
+                    }
                 }
             }
         }
