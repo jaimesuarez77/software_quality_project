@@ -35,25 +35,17 @@ pipeline {
             }
         }
 
-        stage("2 · Preparar entorno") {
-            steps {
-                
-                    
-                    sh """
-                        if command -v python3 >/dev/null 2>&1; then
-                            python3 -m pip install --no-cache-dir -r sqp/requirements.txt
-                        elif command -v python >/dev/null 2>&1; then
-                            python -m pip install --no-cache-dir -r requirements.txt
-                        else
-                            echo "ERROR: Python no está instalado en el agente"
-                            exit 1
-                        fi
-                        mkdir -p ../${REPORTS_DIR}
-                    """
-                
-            }
-        }
+        stage('2 · Preparar entorno') {
+    steps {
+        sh '''
+            python3 -m venv venv
+            . venv/bin/activate
 
+            pip install --upgrade pip
+            pip install --no-cache-dir -r sqp/requirements.txt
+        '''
+    }
+}
         stage("3 · Pruebas unitarias") {
             steps {
                 dir('sqp') {
