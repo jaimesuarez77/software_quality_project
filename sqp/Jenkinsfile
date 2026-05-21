@@ -69,7 +69,7 @@ pipeline {
 
         stage("4 · Análisis SonarQube") {
             steps {
-                dir('sqp') {
+                
                     withSonarQubeEnv("SonarQube") {
                         sh """
                             sonar-scanner \
@@ -81,7 +81,6 @@ pipeline {
                                 -Dsonar.python.version=3
                         """
                     }
-                }
             }
         }
 
