@@ -46,24 +46,23 @@ pipeline {
                 '''
             }
         }
-        stage("3 · Pruebas unitarias") {
+        stage('3 · Pruebas unitarias') {
             steps {
-                
-                    sh """
-                        if command -v python3 >/dev/null 2>&1; then
-                            python3 -m pytest --cov=src --cov-report=xml:../${REPORTS_DIR}/coverage.xml --cov-report=html:../${REPORTS_DIR}/htmlcov --cov-fail-under=${COVERAGE_THRESHOLD} --junitxml=../${REPORTS_DIR}/junit.xml
-                        elif command -v python >/dev/null 2>&1; then
-                            python -m pytest --cov=src --cov-report=xml:../${REPORTS_DIR}/coverage.xml --cov-report=html:../${REPORTS_DIR}/htmlcov --cov-fail-under=${COVERAGE_THRESHOLD} --junitxml=../${REPORTS_DIR}/junit.xml
-                        else
-                            echo "ERROR: Python no está instalado en el agente"
-                            exit 1
-                        fi
-                    """
-                
+                sh '''
+                    . venv/bin/activate
+
+                    pytest \
+                    --cov=src \
+                    --cov-report=xml:reports/coverage.xml \
+                    --cov-report=html:reports/htmlcov \
+                    --cov-fail-under=60 \
+                    --junitxml=reports/junit.xml
+                '''
             }
+
             post {
                 always {
-                    junit "sqp/${REPORTS_DIR}/junit.xml"
+                    junit 'reports/junit.xml'
                 }
             }
         }
