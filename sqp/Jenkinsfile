@@ -37,7 +37,8 @@ pipeline {
 
         stage("2 · Preparar entorno") {
             steps {
-                dir('sqp') {
+                
+                    
                     sh """
                         if command -v python3 >/dev/null 2>&1; then
                             python3 -m pip install --no-cache-dir -r requirements.txt
@@ -49,7 +50,7 @@ pipeline {
                         fi
                         mkdir -p ../${REPORTS_DIR}
                     """
-                }
+                
             }
         }
 
