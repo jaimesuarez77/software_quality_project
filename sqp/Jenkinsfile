@@ -67,26 +67,21 @@ pipeline {
             }
         }
 
-        stage("4 · Análisis SonarQube") {
+        stage('4 · Análisis SonarQube') {
             steps {
-                
-                withSonarQubeEnv('SonarQube') {
+                withSonarQubeEnv('SonarQube') { // 'SonarQube' es el nombre del servidor en Jenkins
                     script {
-                        def scannerHome = tool 'sonar-scanner'
-
-                        sh """
-                            ${scannerHome}/bin/sonar-scanner \
-                            -Dsonar.projectKey=software-quality-project \
-                            -Dsonar.projectName='Software Quality Project' \
+                        // Cambia 'sonar-scanner' por el nombre exacto de tu configuración global
+                        def scannerHome = tool 'SonarScanner' 
+                        sh "${scannerHome}/bin/sonar-scanner \
+                            -Dsonar.projectKey=software_quality_project \
                             -Dsonar.sources=sqp/src \
                             -Dsonar.tests=sqp/tests \
-                            -Dsonar.python.coverage.reportPaths=reports/coverage.xml
-                        """
+                            -Dsonar.python.coverage.reportPaths=reports/coverage.xml"
                     }
                 }
             }
         }
-
         stage("5 · Quality Gate") {
             steps {
                 timeout(time: 5, unit: 'MINUTES') {
