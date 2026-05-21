@@ -26,3 +26,7 @@ Required test coverage of 60.0% reached. Total coverage: 78.10%
 
 {"status":"ok","message":"Software Quality API"}
 python3 --version && python3 --version && command -v python3 && command -v python
+
+pytest --cov=src --cov-report=xml:reports/coverage.xml --cov-report=html:reports/htmlcov --cov-fail-under=60 --junitxml=reports/junit.xml
+
+python3 -m pip install --no-cache-dir -r requirements.txt
