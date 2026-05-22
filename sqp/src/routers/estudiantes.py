@@ -37,7 +37,7 @@ def crear_estudiante(estudiante: EstudianteCreate):
     }
     return db[codigo]
 
-
+Mensaje_DP = "Estudiante no encontrado"
 @router.get("/", response_model=list[EstudianteResponse])
 def listar_estudiantes():
     # [DEUDA] Sin paginación — podría retornar miles de registros
@@ -49,7 +49,7 @@ def obtener_estudiante(codigo: str):
     db = get_estudiantes()
     codigo = codigo.upper()
     if codigo not in db:
-        raise HTTPException(status_code=404, detail="Estudiante no encontrado")
+        raise HTTPException(status_code=404, detail=Mensaje_DP)
     return db[codigo]
 
 
@@ -58,7 +58,7 @@ def eliminar_estudiante(codigo: str):
     db = get_estudiantes()
     codigo = codigo.upper()
     if codigo not in db:
-        raise HTTPException(status_code=404, detail="Estudiante no encontrado")
+        raise HTTPException(status_code=404, detail=Mensaje_DP)
     del db[codigo]
 
 
@@ -67,6 +67,6 @@ def desactivar_estudiante(codigo: str):
     db = get_estudiantes()
     codigo = codigo.upper()
     if codigo not in db:
-        raise HTTPException(status_code=404, detail="Estudiante no encontrado")
+        raise HTTPException(status_code=404, detail=Mensaje_DP)
     db[codigo]["activo"] = False
     return db[codigo]
