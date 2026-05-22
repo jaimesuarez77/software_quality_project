@@ -63,7 +63,7 @@ def reporte_academico(codigo_estudiante: str) -> dict:
 
     # [DEUDA BAJA] Variable declarada y no usada
     materias_vistas = set(n["codigo_materia"] for n in notas)
-    conteo_materias = len(materias_vistas)  # declarada pero el valor no se retorna
+    #conteo_materias = len(materias_vistas)  # declarada pero el valor no se retorna
 
     aprobadas = [n for n in notas if es_aprobado(n["valor"])]
     reprobadas = [n for n in notas if not es_aprobado(n["valor"])]
