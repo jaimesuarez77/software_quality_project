@@ -22,9 +22,6 @@ def crear_estudiante(estudiante: EstudianteCreate):
     if codigo in db:
         raise HTTPException(status_code=400, detail="El código ya existe")
 
-    if "@" not in estudiante.email:
-        raise HTTPException(status_code=400, detail="Email inválido")
-
     if not (1 <= estudiante.semestre <= 10):
         raise HTTPException(status_code=400, detail="Semestre debe estar entre 1 y 10")
 

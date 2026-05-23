@@ -8,7 +8,7 @@ DEUDA TÉCNICA INTENCIONAL:
   - [BAJA]   Tipo 'Any' usado sin necesidad (python:S5322)
 """
 from typing import Optional, Any
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field, ConfigDict, EmailStr
 
 
 
@@ -18,7 +18,7 @@ class EstudianteCreate(BaseModel):
     model_config = ConfigDict(str_strip_whitespace=True)
     codigo: str
     nombre: str
-    email: str
+    email: EmailStr
     semestre: int
 
     # [DEUDA] Pydantic v1 style — debería ser model_config = ConfigDict(...)
