@@ -64,7 +64,7 @@ pipeline {
 
             post {
                 always {
-                    junit 'sqp/reports/junit.xml'
+                    junit 'reports/junit.xml'
                 }
             }
         }
