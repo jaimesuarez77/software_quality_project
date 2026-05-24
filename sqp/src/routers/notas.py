@@ -92,3 +92,5 @@ def reporte_estudiante(codigo_estudiante: str):
 @router.get("/estadisticas/globales")
 def estadisticas():
     return estadisticas_globales()
+
+

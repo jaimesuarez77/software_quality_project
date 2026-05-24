@@ -121,6 +121,100 @@ class TestEstadisticasGlobales:
         assert stats["promedio_global"] == 0.0
 
 
+    def test_division_por_cero_promedio_estudiante(self):
+        """
+        Verifica que un estudiante sin notas retorna promedio 0.0
+        y no genera ZeroDivisionError.
+        """
+
+        client.post("/estudiantes/", json={
+            "codigo": "E001",
+            "nombre": "Ana",
+            "email": "ana@test.com",
+            "semestre": 1
+        })
+
+        promedio = calcular_promedio_estudiante("E001")
+
+        assert promedio == 0.0
+
+    def test_promedio_estudiante_endpoint(self, setup_datos):
+        # Registrar una nota primero
+        client.post("/notas/", json={"codigo_estudiante":"E001",
+            "codigo_materia":"CS101","actividad":"P1","valor":4.0})
+        response = client.get("/notas/promedio/estudiante/E001")
+        assert response.status_code == 200
+        assert response.json()["promedio"] == 4.0
+
+    def test_reporte_con_notas_mixtas(self, setup_datos):
+
+        # Nota aprobada
+        client.post("/notas/", json={
+            "codigo_estudiante": "E001",
+            "codigo_materia": "CS101",
+            "actividad": "Parcial 1",
+            "valor": 4.0
+        })
+
+        # Nota reprobada
+        client.post("/notas/", json={
+            "codigo_estudiante": "E001",
+            "codigo_materia": "CS101",
+            "actividad": "Parcial 2",
+            "valor": 2.0
+        })
+
+        response = client.get("/notas/reporte/E001")
+
+        data = response.json()
+
+        assert data["aprobadas"] == 1
+        assert data["reprobadas"] == 1
+        assert data["promedio"] == 3.0
+
+
+    def test_notas_de_estudiante_endpoint(self, setup_datos):
+
+        client.post("/notas/", json={
+            "codigo_estudiante": "E001",
+            "codigo_materia": "CS101",
+            "actividad": "Quiz",
+            "valor": 4.5
+        })
+
+        response = client.get("/notas/estudiante/E001")
+
+        assert response.status_code == 200
+        assert len(response.json()) == 1               
+
+    def test_promedio_materia_endpoint(self, setup_datos):
+
+        client.post("/notas/", json={
+            "codigo_estudiante": "E001",
+            "codigo_materia": "CS101",
+            "actividad": "Parcial",
+            "valor": 5.0
+        })
+
+        response = client.get("/notas/promedio/materia/CS101")
+
+        assert response.status_code == 200
+        assert response.json()["promedio"] == 5.0
+
+    def test_estadisticas_con_datos(self, setup_datos):
+
+        client.post("/notas/", json={
+            "codigo_estudiante": "E001",
+            "codigo_materia": "CS101",
+            "actividad": "Final",
+            "valor": 4.0
+        })
+
+        stats = estadisticas_globales()
+
+        assert stats["total_estudiantes"] == 1
+        assert stats["total_notas"] == 1
+
 # ─────────────────────────────────────────────────────────────
 #  TODO para el equipo:
 #  Agregar tests para DOCUMENTAR y CORREGIR las deudas técnicas:
