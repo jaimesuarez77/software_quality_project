@@ -76,7 +76,10 @@ class TestListarEstudiantes:
 
     def test_listar_con_estudiantes(self):
         client.post("/estudiantes/", json={
-            "codigo": "E001", "nombre": "Ana", "email": "a@t.com", "semestre": 1
+            "codigo": "E001",
+            "nombre": "Ana",
+            "email": "a@t.com",
+            "semestre": 1
         })
         response = client.get("/estudiantes/")
         assert len(response.json()) == 1
@@ -88,6 +91,7 @@ class TestListarEstudiantes:
             "email": "ana@test.com",
             "semestre": 1
         })
+
         response = client.delete("/estudiantes/E001")
         assert response.status_code == 204
 
@@ -102,6 +106,7 @@ class TestListarEstudiantes:
             "email": "ana@test.com",
             "semestre": 1
         })
+
         response = client.put("/estudiantes/E001/desactivar")
         assert response.status_code == 200
         assert response.json()["activo"] is False
@@ -115,6 +120,7 @@ class TestListarEstudiantes:
             "semestre": 1
         })
         assert r1.status_code == 201
+
         # semestre=10 válido
         r2 = client.post("/estudiantes/", json={
             "codigo": "E002",
@@ -123,7 +129,6 @@ class TestListarEstudiantes:
             "semestre": 10
         })
         assert r2.status_code == 201
-
 
 # ─────────────────────────────────────────────────────────────
 #  TODO para el equipo:
