@@ -1,7 +1,7 @@
 // ============================================================
 //  Jenkinsfile — Software Quality Project
 //  RETO: El equipo debe completar las secciones marcadas con TODO
-//  Calidad del Software · VII Semestre
+//  Calidad del Software · VIII Semestre
 // ============================================================
 
 pipeline {
@@ -12,7 +12,7 @@ pipeline {
         SONAR_PROJECT_KEY  = "software-quality-project"
         SONAR_PROJECT_NAME = "Software Quality Project"
         SONAR_HOST_URL     = "http://mi-sonarqube:9000"
-        COVERAGE_THRESHOLD = "75"
+        COVERAGE_THRESHOLD = "85"
         REPORTS_DIR        = "reports"
 
         APP_NAME = "software-quality-project"

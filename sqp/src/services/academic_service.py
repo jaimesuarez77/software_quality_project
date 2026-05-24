@@ -5,30 +5,27 @@ Business logic layer.
 DEUDA TÉCNICA INTENCIONAL:
   - [ALTA]   Código duplicado entre calcular_promedio_estudiante y calcular_promedio_materia
   - [ALTA]   División por cero sin controlar en promedio (python:S3518)
-  - [MEDIA]  Función con demasiadas responsabilidades (God Function)
   - [MEDIA]  Magic numbers sin constante nombrada
   - [BAJA]   Variable declarada y no usada (python:S1481)
+  
+REFACTORIZADO:
+  - reporte_academico() dividida en funciones pequeñas (obtener_estudiante, clasificar_notas)
 """
+from typing import Optional, Tuple, List
 from src.models.database import get_notas, get_estudiantes, get_materias
 
-# [DEUDA MEDIA] Magic number — debería ser una constante nombrada
-# NOTA_MINIMA_APROBACION = 3.0
+NOTA_MINIMA_APROBACION: float = 3.0
+
 def es_aprobado(nota: float) -> bool:
-    return nota >= 3.0    # [DEUDA] 3.0 repetido en múltiples lugares
+    return nota >= NOTA_MINIMA_APROBACION
 
 
-def calcular_promedio_estudiante(codigo: str) -> float:
-    """
-    Calcula el promedio de notas de un estudiante.
-
-    [DEUDA ALTA] Duplicación con calcular_promedio_materia — misma lógica,
-    diferente filtro. Viola DRY.
-    [DEUDA ALTA] División por cero si el estudiante no tiene notas.
-    """
-    notas = [n for n in get_notas() if n["codigo_estudiante"] == codigo.upper()]
-    total = sum(n["valor"] for n in notas)
-    # [DEUDA] ZeroDivisionError si notas está vacío
-    return round(total / len(notas), 2)
+def calcular_promedio_estudiante(codigo):
+    notas = [n for n in get_notas()
+             if n["codigo_estudiante"] == codigo]
+    if not notas:
+        return 0.0
+    return round(sum(n["valor"] for n in notas) / len(notas), 2)
 
 
 def calcular_promedio_materia(codigo: str) -> float:
@@ -44,35 +41,62 @@ def calcular_promedio_materia(codigo: str) -> float:
     return round(total / len(notas), 2)
 
 
-def reporte_academico(codigo_estudiante: str) -> dict:
+def obtener_estudiante(codigo_estudiante: str) -> Optional[dict]:
     """
-    Genera un reporte completo de un estudiante.
-
-    [DEUDA MEDIA] Función con demasiadas responsabilidades:
-    valida existencia, calcula promedio, filtra notas, clasifica.
-    Debería dividirse en funciones más pequeñas.
+    Valida y retorna los datos del estudiante.
+    
+    Args:
+        codigo_estudiante: Código del estudiante a buscar.
+        
+    Returns:
+        dict con datos del estudiante o None si no existe.
     """
     estudiantes = get_estudiantes()
-
     if codigo_estudiante.upper() not in estudiantes:
-        return {"error": "Estudiante no encontrado"}
+        return None
+    return estudiantes[codigo_estudiante.upper()]
 
-    estudiante = estudiantes[codigo_estudiante.upper()]
-    notas = [n for n in get_notas()
-             if n["codigo_estudiante"] == codigo_estudiante.upper()]
 
-    # [DEUDA BAJA] Variable declarada y no usada
-    #materias_vistas = set(n["codigo_materia"] for n in notas)
-    #conteo_materias = len(materias_vistas)  # declarada pero el valor no se retorna
-
+def clasificar_notas(notas: List[dict]) -> Tuple[List[dict], List[dict]]:
+    """
+    Separa notas en aprobadas y reprobadas.
+    
+    Args:
+        notas: Lista de diccionarios con información de notas.
+        
+    Returns:
+        Tupla (aprobadas, reprobadas) con las notas clasificadas.
+    """
     aprobadas = [n for n in notas if es_aprobado(n["valor"])]
     reprobadas = [n for n in notas if not es_aprobado(n["valor"])]
+    return aprobadas, reprobadas
 
-    if notas:
-        promedio = round(sum(n["valor"] for n in notas) / len(notas), 2)
-    else:
-        promedio = 0.0
 
+def reporte_academico(codigo_estudiante: str) -> dict:
+    """
+    Genera un reporte académico de un estudiante.
+    
+    Responsabilidades delegadas a funciones especializadas:
+    - obtener_estudiante(): validación y obtención de datos
+    - clasificar_notas(): separación de notas
+    - calcular_promedio_estudiante(): cálculo de promedio
+    
+    Args:
+        codigo_estudiante: Código del estudiante.
+        
+    Returns:
+        dict con reporte académico o error si no existe.
+    """
+    estudiante = obtener_estudiante(codigo_estudiante)
+    if not estudiante:
+        return {"error": "Estudiante no encontrado"}
+    
+    notas = [n for n in get_notas() 
+             if n["codigo_estudiante"] == codigo_estudiante.upper()]
+    
+    aprobadas, reprobadas = clasificar_notas(notas)
+    promedio = calcular_promedio_estudiante(codigo_estudiante.upper())
+    
     return {
         "estudiante": estudiante["nombre"],
         "total_notas": len(notas),
@@ -80,7 +104,6 @@ def reporte_academico(codigo_estudiante: str) -> dict:
         "reprobadas": len(reprobadas),
         "promedio": promedio,
     }
-
 
 def estadisticas_globales() -> dict:
     """
