@@ -50,19 +50,21 @@ pipeline {
             steps {
                 sh '''
                     . venv/bin/activate
+                    cd sqp
 
                     pytest \
                     --cov=src \
-                    --cov-report=xml:reports/coverage.xml \
-                    --cov-report=html:reports/htmlcov \
+                    --cov-report=xml:../reports/coverage.xml \
+                    --cov-report=html:../reports/htmlcov \
                     --cov-fail-under=60 \
-                    --junitxml=reports/junit.xml
+                    --junitxml=../reports/junit.xml \
+                    tests/
                 '''
             }
 
             post {
                 always {
-                    junit 'reports/junit.xml'
+                    junit 'sqp/reports/junit.xml'
                 }
             }
         }
@@ -77,7 +79,7 @@ pipeline {
                             -Dsonar.projectKey=software_quality_project \
                             -Dsonar.sources=sqp/src \
                             -Dsonar.tests=sqp/tests \
-                            -Dsonar.python.coverage.reportPaths=reports/coverage.xml"
+                            -Dsonar.python.coverage.reportPaths=sqp/reports/coverage.xml"
                     }
                 }
             }
