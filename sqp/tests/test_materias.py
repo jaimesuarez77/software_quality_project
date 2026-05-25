@@ -49,6 +49,12 @@ class TestObtenerMateria:
         response = client.get("/materias/XX999")
         assert response.status_code == 404
 
+    def test_obtener_materia_no_existente(self):
+        response = client.get("/materias/XYZ")
+
+        assert response.status_code == 404
+        assert response.json()["detail"] == "Materia no encontrada"    
+
 
 # ─────────────────────────────────────────────────────────────
 #  TODO para el equipo:
