@@ -48,6 +48,9 @@ curl -X POST http://localhost:8000/estudiantes/ \
   -H "Content-Type: application/json" \
   -d '{"codigo":"E001","nombre":"Ana García","email":"ana@test.com","semestre":5}'
 
+# Pruebas y covertura
+python -m pytest tests/ -v --cov=src --cov-report=term-missing -q  
+
 Name                               Stmts   Miss  Cover   Missing
 ----------------------------------------------------------------
 src/__init__.py                        0      0   100%
@@ -62,6 +65,25 @@ src/services/__init__.py               0      0   100%
 src/services/academic_service.py      31      7    77%   28-31, 41-44, 72
 ----------------------------------------------------------------
 TOTAL                                210     46    78%
+
+
+Name                               Stmts   Miss  Cover   Missing
+----------------------------------------------------------------
+src/__init__.py                        0      0   100%
+src/models/__init__.py                 0      0   100%
+src/models/database.py                18      0   100%
+src/models/schemas.py                 36      0   100%
+src/routers/__init__.py                0      0   100%
+src/routers/estudiantes.py            40      1    98%   67
+src/routers/materias.py               31      6    81%   36, 50-54
+src/routers/notas.py                  54      9    83%   53, 60-64, 71, 81, 94
+src/services/__init__.py               0      0   100%
+src/services/academic_service.py      37      0   100%
+----------------------------------------------------------------
+TOTAL                                216     16    93%
+Required test coverage of 60.0% reached. Total coverage: 92.59%
+============================================================= 34 passed, 1 warning in 2.19s ==============================================================
+
 
 cambiar toda la función:
 
