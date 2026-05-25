@@ -54,7 +54,7 @@ pipeline {
 
                     pytest \
                     --cov=src \
-                    --cov-report=xml:co../reports/coverage.xml \
+                    --cov-report=xml:../reports/coverage.xml \
                     --cov-report=html:../reports/htmlcov \
                     --cov-fail-under=85 \
                     --junitxml=../reports/junit.xml \
@@ -71,15 +71,20 @@ pipeline {
 
         stage('4 · Análisis SonarQube') {
             steps {
-                withSonarQubeEnv('SonarQube') { // 'SonarQube' es el nombre del servidor en Jenkins
+                withSonarQubeEnv('SonarQube') {
                     script {
-                        // Cambia 'sonar-scanner' por el nombre exacto de tu configuración global
-                        def scannerHome = tool 'SonarScanner' 
-                        sh "${scannerHome}/bin/sonar-scanner \
+                        def scannerHome = tool 'SonarScanner'
+
+                        sh """
+                            ls -la reports
+                            cat reports/coverage.xml | head
+
+                            ${scannerHome}/bin/sonar-scanner \
                             -Dsonar.projectKey=software_quality_project \
                             -Dsonar.sources=sqp/src \
                             -Dsonar.tests=sqp/tests \
-                            -Dsonar.python.coverage.reportPaths=sqp/reports/coverage.xml"
+                            -Dsonar.python.coverage.reportPaths=reports/coverage.xml
+                        """
                     }
                 }
             }
