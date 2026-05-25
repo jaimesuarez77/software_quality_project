@@ -56,7 +56,7 @@ pipeline {
                     --cov=src \
                     --cov-report=xml:../reports/coverage.xml \
                     --cov-report=html:../reports/htmlcov \
-                    --cov-fail-under=60 \
+                    --cov-fail-under=85 \
                     --junitxml=../reports/junit.xml \
                     tests/
                 '''
